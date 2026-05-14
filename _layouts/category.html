@@ -12,13 +12,72 @@ layout: page
     <span class="lead text-muted ps-2">{{ page.posts | size }}</span>
   </h1>
 
-  <ul class="content ps-0">
+  <div id="post-list" class="flex-grow-1 px-xl-1">
     {% for post in page.posts %}
-      <li class="d-flex justify-content-between px-md-3">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-        <span class="dash flex-grow-1"></span>
-        {% include datetime.html date=post.date class='text-muted small text-nowrap' lang=lang %}
-      </li>
+      <article class="card-wrapper card">
+        <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
+          {% assign card_body_col = '12' %}
+          {% assign preview_image = post.thumbnail | default: post.image %}
+          {% assign lqip_attr = nil %}
+
+          {% if preview_image %}
+            {% assign src = preview_image.path | default: preview_image %}
+
+            {% if post.media_subpath %}
+              {% unless src contains '://' %}
+                {% assign src = post.media_subpath
+                  | append: '/'
+                  | append: src
+                  | replace: '///', '/'
+                  | replace: '//', '/'
+                %}
+              {% endunless %}
+            {% endif %}
+
+            {% if preview_image.lqip %}
+              {% assign lqip = preview_image.lqip %}
+
+              {% if post.media_subpath %}
+                {% unless lqip contains 'data:' %}
+                  {% assign lqip = post.media_subpath
+                    | append: '/'
+                    | append: lqip
+                    | replace: '///', '/'
+                    | replace: '//', '/'
+                  %}
+                {% endunless %}
+              {% endif %}
+
+              {% assign lqip_attr = 'lqip="' | append: lqip | append: '"' %}
+            {% endif %}
+
+            {% assign alt = preview_image.alt | xml_escape | default: 'Preview Image' %}
+
+            <div class="col-md-5">
+              <img src="{{ src }}" alt="{{ alt }}" {{ lqip_attr }}>
+            </div>
+
+            {% assign card_body_col = '7' %}
+          {% endif %}
+
+          <div class="col-md-{{ card_body_col }}">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title my-2 mt-md-0">{{ post.title }}</h2>
+
+              <div class="card-text content mt-0 mb-3">
+                <p>{% include post-summary.html %}</p>
+              </div>
+
+              <div class="post-meta flex-grow-1 d-flex align-items-end">
+                <div class="me-auto">
+                  <i class="far fa-calendar fa-fw me-1"></i>
+                  {% include datetime.html date=post.date lang=lang %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </article>
     {% endfor %}
-  </ul>
+  </div>
 </div>
