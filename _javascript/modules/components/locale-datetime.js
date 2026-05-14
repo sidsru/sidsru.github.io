@@ -27,6 +27,32 @@ class LocaleHelper {
   }
 }
 
+function formatPostAge(published) {
+  const diffSeconds = Math.max(0, dayjs().diff(published, 'second'));
+
+  if (diffSeconds < 60) {
+    return '포스팅 방금전';
+  }
+
+  if (diffSeconds < 3600) {
+    return `포스팅 ${Math.floor(diffSeconds / 60)}분전`;
+  }
+
+  if (diffSeconds < 86400) {
+    return `포스팅 ${Math.floor(diffSeconds / 3600)}시간전`;
+  }
+
+  if (diffSeconds < 2592000) {
+    return `포스팅 ${Math.floor(diffSeconds / 86400)}일전`;
+  }
+
+  if (diffSeconds < 31536000) {
+    return `포스팅 ${Math.floor(diffSeconds / 2592000)}개월전`;
+  }
+
+  return `포스팅 ${Math.floor(diffSeconds / 31536000)}년전`;
+}
+
 export function initLocaleDatetime() {
   dayjs.locale(LocaleHelper.locale);
   dayjs.extend(window.dayjs_plugin_localizedFormat);
@@ -35,6 +61,13 @@ export function initLocaleDatetime() {
     .querySelectorAll(`[${LocaleHelper.attrTimestamp}]`)
     .forEach((elem) => {
       const date = dayjs.unix(LocaleHelper.getTimestamp(elem));
+
+      if (elem.hasAttribute('data-post-age')) {
+        elem.querySelector('em').textContent = formatPostAge(date);
+        elem.removeAttribute(LocaleHelper.attrTimestamp);
+        return;
+      }
+
       const text = date.format(LocaleHelper.getDateFormat(elem));
       elem.textContent = text;
       elem.removeAttribute(LocaleHelper.attrTimestamp);

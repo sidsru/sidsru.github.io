@@ -1,0 +1,43 @@
+<!-- Display how long ago the post was published -->
+
+{% assign published_ts = include.date | date: '%s' %}
+{% assign now_ts = site.time | date: '%s' %}
+{% assign diff_seconds = now_ts | minus: published_ts %}
+
+{% if diff_seconds < 60 %}
+  {% assign amount = '' %}
+  {% assign unit = '방금' %}
+{% elsif diff_seconds < 3600 %}
+  {% assign amount = diff_seconds | divided_by: 60 %}
+  {% assign unit = '분' %}
+{% elsif diff_seconds < 86400 %}
+  {% assign amount = diff_seconds | divided_by: 3600 %}
+  {% assign unit = '시간' %}
+{% elsif diff_seconds < 2592000 %}
+  {% assign amount = diff_seconds | divided_by: 86400 %}
+  {% assign unit = '일' %}
+{% elsif diff_seconds < 31536000 %}
+  {% assign amount = diff_seconds | divided_by: 2592000 %}
+  {% assign unit = '개월' %}
+{% else %}
+  {% assign amount = diff_seconds | divided_by: 31536000 %}
+  {% assign unit = '년' %}
+{% endif %}
+
+<span
+  class="post-age"
+  data-post-age
+  data-ts="{{ published_ts }}"
+  data-bs-toggle="tooltip"
+  data-bs-placement="bottom"
+  title="{{ include.date | date: '%Y/%m/%d %H:%M' }}"
+>
+  <em>
+    포스팅
+    {% if amount != '' -%}
+      {{ amount }}{{ unit }}전
+    {%- else -%}
+      {{ unit }}전
+    {%- endif %}
+  </em>
+</span>
