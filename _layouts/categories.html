@@ -12,6 +12,12 @@ layout: page
 
 {% assign sort_categories = site.categories | sort %}
 
+{% if content != empty %}
+  <div class="content mb-4">
+    {{ content }}
+  </div>
+{% endif %}
+
 {% for category in sort_categories %}
   {% assign category_name = category | first %}
   {% assign posts_of_category = category | last %}

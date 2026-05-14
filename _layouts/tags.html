@@ -3,6 +3,12 @@ layout: page
 # All the Tags of posts.
 ---
 
+{% if content != empty %}
+  <div class="content mb-4">
+    {{ content }}
+  </div>
+{% endif %}
+
 <div id="tags" class="d-flex flex-wrap mx-xl-2">
   {% assign tags = '' | split: '' %}
   {% for t in site.tags %}
