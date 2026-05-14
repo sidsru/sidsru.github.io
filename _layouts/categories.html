@@ -12,9 +12,10 @@ layout: page
 
 {% assign sort_categories = site.categories | sort %}
 
-{% if content != empty %}
+{% assign page_content = content | strip %}
+{% if page_content != empty %}
   <div class="content mb-4">
-    {{ content }}
+    {{ page_content }}
   </div>
 {% endif %}
 

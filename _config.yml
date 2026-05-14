@@ -16,7 +16,7 @@ timezone: Asia/Seoul
 
 title: sidsru # the main title
 
-tagline: Unreal Engine Clinet Developer(지망생) #A text-focused Jekyll theme # it will display as the subtitle
+tagline: Unreal Engine Client Developer (지망생) # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   개발 공부, 프로젝트 기록, GitHub Pages 운영 메모를 정리하는 블로그입니다.

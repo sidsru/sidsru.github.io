@@ -1,5 +1,5 @@
 ---
-title: "깃허브 블로그 만들기 Feat.Codex"
+title: "깃허브 블로그 만들기 with.Codex"
 date: 2026-05-14 16:34:00 +0900
 categories: [Blog]
 tags: [jekyll, github-pages]
@@ -24,7 +24,7 @@ tags: [jekyll, github-pages]
 
 위 사이트에서 원하는 테마를 고른다음 
 
-![이미지](/assets/img/Posts/2026-05-14_깃허브_블로그_만들기_Feat.Codex/jekyllthemes.png)
+![이미지](/assets/img/posts/2026-05-14-github-blog-with-codex/jekyllthemes.png)
 
 This is a test post for checking whether the blog renders and deploys correctly.
 
