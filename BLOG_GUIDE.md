@@ -37,6 +37,9 @@ title: "깃허브 블로그 만들기 with.Codex"
 date: 2026-05-14 16:34:00 +0900
 categories: [Blog, Test]
 tags: [test, jekyll, github-pages]
+thumbnail:
+  path: /assets/img/posts/2026-05-14-github-blog-with-codex/Blog.png
+  alt: "깃허브 블로그 만들기"
 ---
 
 본문을 작성합니다.
@@ -148,6 +151,16 @@ Markdown에서 사용:
 ```markdown
 ![스크린샷](/assets/img/posts/2026-05-14-github-blog-with-codex/screenshot.png)
 ```
+
+홈 화면의 글 목록과 링크 공유 미리보기에 보일 썸네일은 글 상단 front matter에서 `thumbnail`로 설정합니다.
+
+```yaml
+thumbnail:
+  path: /assets/img/posts/2026-05-14-github-blog-with-codex/Blog.png
+  alt: "깃허브 블로그 만들기"
+```
+
+`thumbnail`은 글 상세 페이지 상단에 큰 이미지로 표시되지 않습니다. 상세 페이지 상단에도 큰 프리뷰 이미지를 보여주고 싶으면 Chirpy 기본값인 `image`를 사용하면 됩니다.
 
 ### `_data`
 
@@ -288,6 +301,9 @@ title: "첫 번째 글"
 date: 2026-05-14 16:00:00 +0900
 categories: [Blog, Note]
 tags: [jekyll, github-pages]
+thumbnail:
+  path: /assets/img/posts/2026-05-14-first-post/thumbnail.png
+  alt: "첫 번째 글 썸네일"
 ---
 
 본문을 여기에 작성합니다.
@@ -361,6 +377,16 @@ assets/img/posts/2026-05-14-first-post/screenshot.png
 ```markdown
 ![스크린샷](/assets/img/posts/2026-05-14-first-post/screenshot.png)
 ```
+
+썸네일로 사용하는 방법:
+
+```yaml
+thumbnail:
+  path: /assets/img/posts/2026-05-14-first-post/thumbnail.png
+  alt: "첫 번째 글 썸네일"
+```
+
+목록에서는 `thumbnail`을 우선 사용하고, 값이 없으면 기존 Chirpy 방식인 `image`를 대신 사용합니다.
 
 ### 디자인 수정
 

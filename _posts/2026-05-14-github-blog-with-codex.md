@@ -3,6 +3,9 @@ title: "깃허브 블로그 만들기 with.Codex"
 date: 2026-05-14 16:34:00 +0900
 categories: [Blog]
 tags: [jekyll, github-pages]
+thumbnail:
+  path: /assets/img/posts/2026-05-14-github-blog-with-codex/Blog.png
+  alt: "GitHub 블로그 만들기"
 ---
 
 티스토리에서 블로그를 작성하며 개발을 하던 나는 종종 구글링을 하여 정보를 찾곤하였는데  

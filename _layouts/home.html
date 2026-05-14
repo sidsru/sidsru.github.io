@@ -52,8 +52,11 @@ layout: default
       <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
         {% assign card_body_col = '12' %}
 
-        {% if post.image %}
-          {% assign src = post.image.path | default: post.image %}
+        {% assign preview_image = post.thumbnail | default: post.image %}
+        {% assign lqip_attr = nil %}
+
+        {% if preview_image %}
+          {% assign src = preview_image.path | default: preview_image %}
 
           {% if post.media_subpath %}
             {% unless src contains '://' %}
@@ -66,8 +69,8 @@ layout: default
             {% endunless %}
           {% endif %}
 
-          {% if post.image.lqip %}
-            {% assign lqip = post.image.lqip %}
+          {% if preview_image.lqip %}
+            {% assign lqip = preview_image.lqip %}
 
             {% if post.media_subpath %}
               {% unless lqip contains 'data:' %}
@@ -83,7 +86,7 @@ layout: default
             {% assign lqip_attr = 'lqip="' | append: lqip | append: '"' %}
           {% endif %}
 
-          {% assign alt = post.image.alt | xml_escape | default: 'Preview Image' %}
+          {% assign alt = preview_image.alt | xml_escape | default: 'Preview Image' %}
 
           <div class="col-md-5">
             <img src="{{ src }}" alt="{{ alt }}" {{ lqip_attr }}>
