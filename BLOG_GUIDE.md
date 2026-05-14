@@ -3,9 +3,9 @@
 이 저장소는 Jekyll + Chirpy 기반 블로그입니다.
 
 - `master`: 블로그 소스 관리 브랜치
-- `gh-pages`: 실제 GitHub Pages에 공개되는 빌드 결과 브랜치
+- GitHub Actions: `master`에 올라온 소스를 자동으로 빌드하고 GitHub Pages에 배포합니다.
 
-현재 workflow 파일 푸시는 GitHub 토큰의 `workflow` 권한 문제로 막힐 수 있으므로, 당분간은 로컬에서 빌드한 `_site` 결과를 `gh-pages` 브랜치에 직접 올리는 방식으로 배포합니다.
+현재 권장 배포 방식은 GitHub Actions입니다. 글, 이미지, 설정을 수정한 뒤 `master`에 push하면 Actions가 자동으로 `npm run build`와 `jekyll build`를 실행하고 Pages에 배포합니다.
 
 ## 폴더 구조와 사용처
 
@@ -428,40 +428,40 @@ git push origin master
 
 ## 실제 사이트 배포하기
 
-현재 권장 배포 방식은 `_site`를 빌드한 뒤 `gh-pages` 브랜치에 올리는 방식입니다.
+현재 권장 배포 방식은 GitHub Actions입니다.
 
-1. 소스 브랜치에서 빌드합니다.
-
-```powershell
-npm.cmd install
-npm.cmd run build
-bundle exec jekyll build
-```
-
-2. `_site` 폴더를 `gh-pages` 브랜치로 푸시합니다.
+1. 변경한 소스 파일을 `master`에 커밋합니다.
 
 ```powershell
-cd _site
-echo. > .nojekyll
-git init
-git checkout -B gh-pages
-git remote add origin https://github.com/sidsru/sidsru.github.io.git
-git add -A
-git commit -m "Deploy built site"
-git push -f origin gh-pages
-cd ..
+git status
+git add _posts _tabs _config.yml assets _sass _includes _layouts BLOG_GUIDE.md
+git commit -m "Update blog content"
 ```
 
-3. GitHub Pages 설정을 확인합니다.
+2. `master`를 GitHub에 push합니다.
+
+```powershell
+git push origin master
+```
+
+3. GitHub Actions 배포 상태를 확인합니다.
+
+GitHub 저장소에서:
+
+```text
+Actions -> Deploy GitHub Pages
+```
+
+4. GitHub Pages 설정을 한 번만 확인합니다.
 
 GitHub 저장소에서:
 
 ```text
 Settings -> Pages -> Build and deployment
-Source: Deploy from a branch
-Branch: gh-pages
-Folder: / (root)
+Source: GitHub Actions
 ```
+
+이 설정이 되어 있으면 `_site`를 직접 `gh-pages` 브랜치에 올릴 필요가 없습니다.
 
 ## 배포 후 정리
 
@@ -476,24 +476,8 @@ Remove-Item -Force package-lock.json, Gemfile.lock
 
 ## 현재 주의할 점
 
-현재 로컬 `master`가 `origin/master`보다 workflow 수정 커밋 1개 앞서 있을 수 있습니다.
+GitHub Pages 설정에서 `Source: GitHub Actions`를 선택해야 이 workflow가 실제 배포에 사용됩니다.
 
-확인:
+`Source: Deploy from a branch` 상태로 남아 있으면 `master`에 push해도 Actions 결과가 Pages에 반영되지 않고, 기존 `gh-pages` 브랜치 내용이 계속 보일 수 있습니다.
 
-```powershell
-git status -sb
-```
-
-아래처럼 나오면:
-
-```text
-## master...origin/master [ahead 1]
-```
-
-그 커밋은 workflow 권한 문제로 푸시가 막힐 수 있습니다. `gh-pages` 배포만 사용할 예정이라면, 새 글을 쓰기 전에 아래 명령으로 원격 상태에 맞출 수 있습니다.
-
-주의: 커밋하지 않은 작업이 있으면 사라질 수 있으니 `git status`가 깨끗할 때만 실행하세요.
-
-```powershell
-git reset --hard origin/master
-```
+새 글을 올린 뒤에는 Actions 탭에서 `Deploy GitHub Pages` workflow가 성공했는지 확인하세요.
