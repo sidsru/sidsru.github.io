@@ -6,6 +6,8 @@ tags: [Unreal Engine, Server]
 thumbnail:
   path: /assets/img/posts/2026-05-16-LoginImplementation/create.png
   alt: "Unreal Engine 로그인 구현"
+description: "Unreal Engine에서 Node.js 백엔드와 MySQL DB를 연결해 회원가입과 로그인을 구현해본 기록"
+mermaid: true
 ---
 # UnrealEngine 로그인 기능
 
@@ -16,28 +18,40 @@ thumbnail:
 
 프로젝트를 하다 보면 사실상 마치 서버라는 개념이 거의 없던 콘솔 전용 게임을 만드는 것 같다.  
 정말로 서버가 필요없는 싱글 콘솔 전용게임이더라 하더라도  
-크랙판 문제로 인해 정상적인 게임인지 확인 하기 위해 요즘은 네트워크 연결 없이 할 수 있는 게임을 찾아 보기 힘들기에  
+크랙판 문제로 인해 정상적인 게임인지 확인 하기 위해 요즘은 네트워크 연결 없이 할 수 있는 게임을 찾아 보기 힘들기에
 
 Backend를 깊게 들어가는 것이 아닌 작업을 할때 서버에서 동작하는 것을 확인 하기 위해  
-Ai를 활용하여 Backend를 구축하고 활용하여 회원가입과 로그인을 제작하고자 한다.  
+Ai를 활용하여 Backend를 구축하고 활용하여 회원가입과 로그인을 제작하고자 한다.
+
+이번 글에서 다룰 내용은 대략 아래와 같다.
+
+- 언리얼 클라이언트에서 회원가입/로그인 요청 전송
+- Node.js 서버에서 요청 검증과 인증 처리
+- MySQL DB에 계정, 프로필, 인벤토리, 기본 재화 저장
+- 로그인 성공 시 JWT 발급
+- 클라이언트에서 로그인 세션 유지
 
 ## 2. 전체 구조
-[clever_cloud](https://www.clever.cloud/)에서 DB를 구축하고  
-[render](https://render.com/)에서 Server를 구축했다  
-현재 인증 흐름은 크게 두 영역으로 나뉘어서 작동한다.
 
-- Unreal Client
-  - `UFPAuthSubsystem`: 회원가입/로그인 요청과 응답 처리
-  - `UFPApiSubsystem`: HTTP 요청 공통 처리
-  - `UFPBackendSettings`: 백엔드 서버 주소 설정
-  - `WBP_Login`: 블루프린트 위젯에서 로그인 UI 담당
+[Clever Cloud](https://www.clever.cloud/)에서 DB를 구축하고  
+[Render](https://render.com/)에서 Server를 구축했다.  
+현재 인증 흐름은 크게 언리얼 클라이언트, Node.js 백엔드, MySQL DB 세 영역으로 나뉘어서 작동한다.
 
-- Node.js Backend
-  - `authRoutes.js`: `/auth/register`, `/auth/login` 라우팅
-  - `authController.js`: 요청 값 검증과 HTTP 응답 처리
-  - `authService.js`: 인증 비즈니스 로직
-  - `accountRepository.js`: MySQL 계정/프로필/인벤토리 데이터 접근
-  - `authMiddleware.js`: JWT 인증이 필요한 API를 위한 토큰 검증 미들웨어
+![Clever Cloud DB 설정](/assets/img/posts/2026-05-16-LoginImplementation/clever_cloud.png)
+
+![계정 생성 확인](/assets/img/posts/2026-05-16-LoginImplementation/create.png)
+
+| 영역 | 주요 파일 | 역할 |
+| --- | --- | --- |
+| Unreal Client | `WBP_Login` | 로그인 UI 입력과 결과 표시 |
+| Unreal Client | `UFPAuthSubsystem` | 회원가입/로그인 요청, 응답 처리, 세션 저장 |
+| Unreal Client | `UFPApiSubsystem` | HTTP 요청 공통 처리 |
+| Unreal Client | `UFPBackendSettings` | 백엔드 서버 주소 설정 |
+| Node.js Backend | `authRoutes.js` | `/auth/register`, `/auth/login` 라우팅 |
+| Node.js Backend | `authController.js` | 요청 값 검증과 HTTP 응답 처리 |
+| Node.js Backend | `authService.js` | 회원가입/로그인 비즈니스 로직 |
+| Node.js Backend | `accountRepository.js` | MySQL 계정/프로필/인벤토리 데이터 접근 |
+| Node.js Backend | `authMiddleware.js` | JWT 인증이 필요한 API의 토큰 검증 |
 
 Unreal Client에서 HTTP 요청 과정을 추상화하여 간단하게 사용할 수 있도록 만들었다.
 
@@ -98,7 +112,10 @@ void UFPApiSubsystem::GetJson ( const FString& Path, FFPApiResponseDelegate Resp
 ```
 </details>
 
-`전체적인 흐름`
+### 전체적인 흐름
+
+로그인 버튼을 누른 뒤 서버 응답을 받아 세션을 저장하기까지의 흐름을 보자면 아래와 같다.
+
 ```mermaid
 sequenceDiagram
     participant UI as WBP_Login
@@ -122,7 +139,7 @@ sequenceDiagram
 
 Backend의 코드 부분은 AI를 활용하여 작성 한뒤  
 디테일한 부분만 수정하는 방향으로 진행하여 큰 틀만 설명하자면.  
-우선 로그인 관련 HTTP신호는 2가지로 회원가입과 로그인이 있다.  
+우선 로그인 관련 HTTP신호는 2가지로 회원가입과 로그인이 있다.
 
 | Method | Path | 역할 |
 | --- | --- | --- |
@@ -133,7 +150,6 @@ Backend의 코드 부분은 AI를 활용하여 작성 한뒤
 ### 회원가입 처리
 
 회원가입은 `registerAccount()`에서 처리되며  
-
 처리 순서를 코드와 함께 보자면
 
 1. MySQL 커넥션을 가져오고 트랜잭션을 시작한다.
@@ -215,7 +231,6 @@ export async function registerAccount({ UserID, Password }) {
 ### 로그인 처리
 
 로그인은 `loginAccount()`에서 처리되며.
-
 마찬가지로 처리 순서를 코드와 함께 보자면
 
 1. `UserID`로 계정을 조회한다.
@@ -306,7 +321,8 @@ jwt.sign(
   }
 );
 ```
-토큰 payload에는 `accountId`와 `userId`가 담겨있어
+
+토큰 payload에는 `accountId`와 `userId`가 담겨있어  
 인증이 필요한 API에서 토큰 검증을 과정을 통해 어떤 계정의 요청인지 알 수 있게 된다.
 
 ## 5. 언리얼 로그인 요청
@@ -368,7 +384,6 @@ void Login(const FString& UserID, const FString& Password);
 UPROPERTY(BlueprintAssignable, Category = "Auth")
 FFPAuthLoginResultDelegate LoginResultDelegate;
 ```
-![LoginBlueprint]()
 
 캡슐화로 인해 UI는 HTTP 세부 구현을 몰라도 된다.  
 UI는 `Login()`을 호출하고, 성공/실패 결과만 받아 화면 전환이나 오류 메시지 표시를 처리하면 된다.
@@ -397,6 +412,8 @@ PartyDataSubsystem->RequestOwnedCharacters(AuthSubsystem->GetAccountId());
 
 ## 9. 정리
 
+이번 구현을 정리하자면
+
 - `UFPAuthSubsystem`은 인증 상태와 로그인/회원가입 요청을 담당한다.
 - `UFPApiSubsystem`은 HTTP 요청 공통 기능을 담당한다.
 - Express 백엔드는 route, controller, service, repository 계층으로 책임을 나눈다.
@@ -406,6 +423,7 @@ PartyDataSubsystem->RequestOwnedCharacters(AuthSubsystem->GetAccountId());
 
 
 ## 10. 작동 확인
+
 로그인된 계정마다 다른 정보를 가지고 있음
 
 {% include embed/video.html src="/assets/img/posts/2026-05-16-LoginImplementation/login1.mp4" title="계정 1 로그인 확인" %}
