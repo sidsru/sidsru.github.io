@@ -50,9 +50,9 @@ layout: default
   {% for post in posts %}
     <article class="card-wrapper card">
       <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
-        {% assign card_body_col = '12' %}
+        {% assign card_body_col = '7' %}
 
-        {% assign preview_image = post.thumbnail | default: post.image %}
+        {% assign preview_image = post.thumbnail %}
         {% assign lqip_attr = nil %}
 
         {% if preview_image %}
@@ -92,7 +92,8 @@ layout: default
             <img src="{{ src }}" alt="{{ alt }}" {{ lqip_attr }}>
           </div>
 
-          {% assign card_body_col = '7' %}
+        {% else %}
+          <div class="col-md-5"></div>
         {% endif %}
 
         <div class="col-md-{{ card_body_col }}">

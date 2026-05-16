@@ -3,9 +3,6 @@ title: "Unreal Engine 서버 구축(로그인,회원가입)"
 date: 2026-05-16 15:51:00 +0900
 categories: [Unreal Engine, Server]
 tags: [Unreal Engine, Server]
-thumbnail:
-  path: /assets/img/posts/2026-05-16-LoginImplementation/create.png
-  alt: "Unreal Engine 로그인 구현"
 description: "Unreal Engine에서 Node.js 백엔드와 MySQL DB를 연결해 회원가입과 로그인을 구현해본 기록"
 mermaid: true
 ---
